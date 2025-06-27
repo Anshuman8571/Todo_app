@@ -3,7 +3,9 @@ const cors = require("cors")
 const bodyParser = require("body-parser")
 const mongoose = require("mongoose")
 const Todo = require("./models/todomodel")
+const dotenv = require("dotenv")
 
+dotenv.config()
 
 const app = express(); //Calling the application
 app.use(cors()) // To create a contact b/w FE and BE
@@ -12,7 +14,7 @@ app.use(express.json()) // Another middleware for creating route
 
 const connectDB = async () => {
     try {
-        await mongoose.connect("mongodb+srv://anshumanbhardwaj2011:wLinBoeB8mRtmcq2@todoapp.8trpflk.mongodb.net/?retryWrites=true&w=majority&appName=TodoApp")
+        await mongoose.connect(process.env.MONGO_URI)
         console.log("MongoDB got connected")
     } catch(error){
         console.error("MongoDB connection failed",error)
