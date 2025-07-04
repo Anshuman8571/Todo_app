@@ -1,24 +1,14 @@
 import React,{useState} from "react";
 
-const AddTodo = ()=>{
+const AddTodo = ({ onAdd })=>{
     const [todo, setTodo] = useState('This is a new state')
     
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(todo)
-        try{
-            const response = await fetch(`http://localhost:3001/add-todo`,{
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({todo})
-            })
-
-            console.log("Response recieved",response)
-        }catch(err){
-            console.log("Error occured while creating todo",err)
-        }
+        if(!todo) return;
+        
+        onAdd(todo);
+        setTodo("")
     }
     return (
         <form onSubmit={handleSubmit}>
@@ -26,6 +16,8 @@ const AddTodo = ()=>{
                 type="text"
                 value = {todo}
                 onChange={(e)=> setTodo(e.target.value)}
+                placeholder="Add a new todo"
+                required
             /> 
             <button type="Submit"> Add Todo</button>
         </form>
