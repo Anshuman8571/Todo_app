@@ -1,9 +1,11 @@
 ---
 - name: Provision EC2 instance & install XX
   hosts: localhost
-  
   vars:
-    ansible_python_interpreter: /usr/bin/python3.12
+    ansible_python_interpreter: /home/anshuman/.ansible_venv/bin/python
+  
+  # vars:
+  #   ansible_python_interpreter: /usr/bin/python3.12
 
   gather_facts: false
   tasks:
@@ -30,3 +32,15 @@
           - proto: all
             cidr_ip: 0.0.0.0/0
       register: security_group
+    
+    - name: Launch EC2 instance
+      amazon.aws.ec2_instance:
+        name: "Ansible_server"
+        key_name: todo-ansible
+        instance_type: t2.micro
+        image_id: ami-0a1235697f4afa8a4
+        region: ap-south-1
+        security_group: "{{ security_group.group_id }}"
+        wait: yes
+        count: 1
+      register: ec2
