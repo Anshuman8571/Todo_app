@@ -1,8 +1,10 @@
 ---
 - name: Provision EC2 instance & install XX
   hosts: localhost
-  # vars:
-  #   ansible_python_interpreter: /home/anshuman/.ansible_venv/bin/python
+  
+  vars:
+    ansible_python_interpreter: //opt/hostedtoolcache/Python/3.10.*/x64/bin/python
+
   gather_facts: false
   tasks:
     - name: Adding SSH access to a security group
