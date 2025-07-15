@@ -3,7 +3,7 @@
   hosts: localhost
   
   vars:
-    ansible_python_interpreter: //opt/hostedtoolcache/Python/3.10.*/x64/bin/python
+    ansible_python_interpreter: auto
 
   gather_facts: false
   tasks:
