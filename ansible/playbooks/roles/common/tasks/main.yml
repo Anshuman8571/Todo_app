@@ -8,7 +8,7 @@
       - httpd
       - nodejs
       - npm
-  state: present
+    state: present
 
 - name: Start and Enable Apache
   become: true
