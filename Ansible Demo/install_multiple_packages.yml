@@ -1,0 +1,32 @@
+---
+- name: Installing Multiple packages
+  hosts: all
+  become: true
+
+  vars:
+    package_name:
+      Ubuntu: apache2
+      Amazon: httpd
+
+  tasks:
+
+    - name: Install packages on Ubuntu
+      apt:
+        name: "{{ item }}"
+      with_items:
+        - nginx
+        - apache2
+        - git
+        - nodejs
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Install packages on Amazon
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - nginx
+        - httpd
+        - nodejs
+        - git
+      when: ansible_distribution == "Amazon"

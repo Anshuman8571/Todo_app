@@ -1,0 +1,20 @@
+---
+- name: Cpying the ec2_key
+  hosts: aws_linux
+  become: yes
+  vars:
+    app_name: devops
+  
+  vars_files:
+    - "secret.yml"
+
+  tasks:
+    - name: Show dynamic group of aws_linux
+      debug:
+        var: groups['aws_linux']
+
+    - name: Copy the aws password
+      copy:
+        content: "{{ ws_key }}"
+        dest: /etc/devops_db_pass.txt
+

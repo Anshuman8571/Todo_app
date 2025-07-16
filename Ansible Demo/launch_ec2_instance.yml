@@ -1,0 +1,52 @@
+--- 
+- name: Provision EC2 instance and install XX
+  hosts: localhost
+  vars:
+    ansible_python_interpreter: /home/anshuman/.ansible_venv/bin/python
+  gather_facts: no #Skips the information gathering part
+  roles:
+    - ec2_launch 
+  tasks:
+    - name: Verify boto3
+      command: /home/anshuman/.ansible_venv/bin/python -c "import boto3 ; print('boto3 is working')"
+     
+    
+
+    # - name: Install Python on EC2
+    #   become: yes
+    #   package:
+    #     name: python3
+    #     state: present
+    #   delegate_to: "{{ item }}"
+    #   with_items:
+    #     - "{{ groups['dynamic_hosts'] }}"
+
+
+    # - name: Install Apache on dynamically added instances
+    #   become: yes
+    #   yum:
+    #     name: httpd
+    #     state: present
+    #   delegate_to: "{{ item }}"
+    #   with_items:
+    #     - "{{ groups['dynamic_hosts'] }}"
+    #   vars:
+    #     ansible_ssh_private_key_file: "/mnt/c/Developer/AWS\ Keys/ec2_key.pem"
+    #     ansible_user: ec2-user
+    #   when: groups['dynamic_hosts'] is defined and groups['dynamic_hosts'] | length>0
+
+
+
+- name: Configure newly launched EC2 hosts
+  hosts: dynamic_hosts
+  gather_facts: no
+  become: yes
+  vars:
+    ansible_user: ec2-user
+    ansible_ssh_private_key_file: "/mnt/c/Developer/AWS Keys/ec2_key.pem"
+    ansible_python_interpreter: /usr/bin/python3
+  roles:
+    - webserver_config
+
+    
+

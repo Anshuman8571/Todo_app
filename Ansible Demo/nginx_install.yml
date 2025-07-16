@@ -1,0 +1,69 @@
+--- # this means that this is the starting of the yaml file
+- name: Installing Nginx and configure it
+  hosts: all
+  become: true
+
+  vars:
+    package_name: 
+      Ubuntu: apache2
+      Amazon: httpd
+
+  tasks:
+    - name: Printing OS versions
+      debug:
+        msg: "This OS is {{ ansible_distribution }}" ## Using distribution name as a dynamic value
+
+    - name: Installing apache webserver
+      yum: 
+        name: "{{ package_name['Amazon'] }}"
+        state: present
+      when: ansible_distribution == "Amazon"
+
+    - name: Installing apache webserver
+      apt: 
+        name: "{{ package_name['Ubuntu'] }}"
+        state: present
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Install Nginx
+      yum:                      ## yum is the package manager in Amazon linux 
+        name: nginx
+        state: present
+      when: ansible_distribution == "Amazon"
+    
+    - name: Install Nginx
+      apt:                      ## yum is the package manager in Amazon linux 
+        name: nginx
+        state: present
+      when: ansible_distribution == "Ubuntu"
+    
+    # - name: Install Nginx
+    #   dnf:                      ## yum is the package manager in Amazon linux 
+    #     name: nginx
+    #     state: present
+    #   when: ansible_distribution == "Debian"
+
+    - name: Staring Nginx
+      service:
+        name: nginx
+        state: started
+        enabled: true
+      when: ansible_distribution == "Amazon"
+    
+    - name: Install Cronjon
+      yum :
+        name: cronie
+        state: present
+      when: ansible_distribution == "Amazon"
+
+    - name: Install Cronjon
+      apt :
+        name: cronie
+        state: present
+      when: ansible_distribution == "Ubuntu"
+
+    # - name: Install Cronjon
+    #   dnf :
+    #     name: cronie
+    #     state: present
+    #   when: ansible_distribution == "Debian"
