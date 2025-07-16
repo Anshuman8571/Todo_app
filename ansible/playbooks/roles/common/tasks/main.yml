@@ -4,9 +4,10 @@
 - name: Install Common packages
   become: true
   package: 
-    - httpd
-    - nodejs
-    - npm
+    name:
+      - httpd
+      - nodejs
+      - npm
   state: present
 
 - name: Start and Enable Apache
