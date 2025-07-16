@@ -1,5 +1,5 @@
 ---
-name: Provision of Ec2 Instance and configuration with ansible
+name: Provision of EC2 Instance and configuration with ansible
 on:
     push:
         branches:
