@@ -1,6 +1,6 @@
 ---
 - name: Provision EC2 instance & install XX
-  hosts: localhost
+  hosts: all
   # vars:
   #   ansible_python_interpreter: /home/anshuman/.ansible_venv/bin/python
   
