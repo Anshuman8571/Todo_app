@@ -3,44 +3,10 @@
   hosts: all
   # vars:
   #   ansible_python_interpreter: /home/anshuman/.ansible_venv/bin/python
-  
+  roles: 
+    - ec2_launch
   vars:
     ansible_python_interpreter: /usr/bin/python3.12
 
   gather_facts: false
-  tasks:
-    - name: Adding SSH access to a security group
-      amazon.aws.ec2_group:
-        name: Safe and Secure
-        description: Safe and Secure
-        region: ap-south-1
-        rules:
-          - proto: tcp
-            from_port: 3001
-            to_port: 3001
-            cidr_ip: 0.0.0.0/0
-          - proto: tcp
-            from_port: 3000
-            to_port: 3000
-            cidr_ip: 0.0.0.0/0
-          - proto: tcp
-            from_port: 22
-            to_port: 22
-            cidr_ip: 0.0.0.0/0
-          
-        rules_egress:
-          - proto: all
-            cidr_ip: 0.0.0.0/0
-      register: security_group
-    
-    - name: Launch EC2 instance
-      amazon.aws.ec2_instance:
-        name: "Ansible_server"
-        key_name: todo-ansible
-        instance_type: t2.micro
-        image_id: ami-0a1235697f4afa8a4
-        region: ap-south-1
-        security_group: "{{ security_group.group_id }}"
-        wait: yes
-        count: 1
-      register: ec2
+  
