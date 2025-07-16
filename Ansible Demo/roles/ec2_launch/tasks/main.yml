@@ -27,10 +27,10 @@
 - name: Launch EC2 Instance
   amazon.aws.ec2_instance:
     name: Ansible-created-instance
-    key_name: ec2_key
-    region: ap-south-1
-    instance_type: t2.micro
-    image_id: ami-0a1235697f4afa8a4
+    key_name: {{ ec2_key_name }}
+    region: {{ aws_region }}
+    instance_type: {{ ec2_instance_type }}
+    image_id: {{ ec2_ami_id }}
     count: 1
     security_group: "{{ security_group.group_id }}"
   register: ec2
