@@ -11,7 +11,7 @@
   become: true
   community.general.npm:
     name: pm2
-    global: yes
+    global: true
     state: present
 
 - name: Check is start.js exists
@@ -33,39 +33,49 @@
   debug:
     var: pm2_list.stdout_lines
 
-# - name: Start or restart the backend
-#   become: true
-#   command: "pm2 start -f start.js"
-#   args:
-#     chdir: /opt/todo-app/todo-backend
-#   when: start_js.stat.exists
-
-# - name: Set pm2 to start on boot
-#   become: true
-#   command: pm2 startup
-#   args:
-#    chdir: /opt/todo-app/todo-backend/
-
-- name: Start or restart the backend using ecosystem file
+- name: Start or restart the backend
   become: true
-  community.general.npm:
-    name: pm2
-    path: /opt/todo-app/todo-backend
-    state: started # Runs 'startOrRestart ecosystem.config.js'
-
-- name: Get the pm2 startup command for the system
-  become: true
-  ansible.builtin.shell: pm2 startup | tail -n 1
-  register: pm2_startup_cmd
-  changed_when: false
-
-- name: Run the pm2 startup command to register on boot
-  become: true
-  ansible.builtin.command: "{{ pm2_startup_cmd.stdout }}"
-  when: pm2_startup_cmd.stdout is defined and pm2_startup_cmd.stdout != ""
-
-- name: Save the current pm2 process list to run on boot
-  become: true
-  ansible.builtin.command: pm2 save
+  command: "pm2 start -f start.js"
   args:
     chdir: /opt/todo-app/todo-backend
+  when: start_js.stat.exists
+
+- name: Set pm2 to start on boot
+  become: true
+  command: pm2 startup
+  args:
+   chdir: /opt/todo-app/todo-backend/
+
+- name: Verify backend is listening on port 3001
+  become: true
+  command: "netstat -tulnp | grep 3001"
+  register: port_check
+  changed_when: false
+
+- name: Debug port binding
+  debug:
+    var: port_check.stdout_lines
+
+# - name: Start or restart the backend using ecosystem file
+#   become: true
+#   community.general.npm:
+#     name: pm2
+#     path: /opt/todo-app/todo-backend
+#     state: started # Runs 'startOrRestart ecosystem.config.js'
+
+# - name: Get the pm2 startup command for the system
+#   become: true
+#   ansible.builtin.shell: pm2 startup | tail -n 1
+#   register: pm2_startup_cmd
+#   changed_when: false
+
+# - name: Run the pm2 startup command to register on boot
+#   become: true
+#   ansible.builtin.command: "{{ pm2_startup_cmd.stdout }}"
+#   when: pm2_startup_cmd.stdout is defined and pm2_startup_cmd.stdout != ""
+
+# - name: Save the current pm2 process list to run on boot
+#   become: true
+#   ansible.builtin.command: pm2 save
+#   args:
+#     chdir: /opt/todo-app/todo-backend
