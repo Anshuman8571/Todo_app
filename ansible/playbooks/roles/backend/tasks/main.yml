@@ -9,11 +9,10 @@
 
 - name: Install dotenv
   become: true
-  npm:
+  community.general.npm:
     name: dotenv
-    global: yes
-  args:
-    chdir: /opt/todo-app/todo-backend
+    global: true
+    path: /opt/todo-app/todo-backend
 
 - name: Install PM2
   become: true
