@@ -3,7 +3,7 @@
 # tasks file for common
 - name: Install common packages
   become: true
-  package: 
+  ansible.builtin.package: 
     name:
       - httpd
       - nodejs
@@ -12,22 +12,22 @@
 
 - name: Start and Enable Apache
   become: true
-  service: 
+  ansible.builtin.service: 
     name: httpd
     state: started
     enabled: yes
 
 - name: Ensure target directory exists
   become: true
-  file:
+  ansible.builtin.file:
     path: /opt/todo-app
     state: directory
     mode: '0755'
 
 - name: Copy Source Code
   become: true
-  synchronize:
-    src: "{{ playbook_dir }}/../.."
+  ansible.posix.synchronize:
+    src: "{{ playbook_dir }}/../../todo-backend"
     dest: "/opt/todo-app/todo-backend"
     delete: yes
     recursive: yes
@@ -35,3 +35,4 @@
       - "--exclude=.git"
       - "--exclude=.github"
       - "--exclude=ansible"
+    notify: Restart Backend
