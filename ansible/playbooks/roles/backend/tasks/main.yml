@@ -30,7 +30,7 @@
 
 - name: Debug the pm2 list
   debug:
-    var: pm2_list.standard_lines
+    var: pm2_list.stdout_lines
 
 - name: Start or restart the backend
   become: true
