@@ -3,7 +3,7 @@
 # tasks file for backend
 - name: Install backend dependencies
   become: true
-  npm:
+  community.general.npm:
     path: /opt/todo-app/todo-backend
     state: present
 
@@ -16,7 +16,7 @@
 
 - name: Install PM2
   become: true
-  npm: 
+  community.general.npm:
     name: pm2
     global: yes
 
