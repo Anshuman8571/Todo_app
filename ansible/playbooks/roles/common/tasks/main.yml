@@ -17,6 +17,13 @@
     state: started
     enabled: yes
 
+- name: Ensure target directory exists
+  become: true
+  file:
+    path: /opt/todo-app
+    state: directory
+    mode: '0755'
+
 - name: Copy Source Code
   become: true
   synchronize:
