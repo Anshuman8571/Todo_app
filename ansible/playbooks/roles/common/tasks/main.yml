@@ -35,7 +35,7 @@
       - "--exclude=.git"
       - "--exclude=.github"
       - "--exclude=ansible"
-    register: sync_result
+  register: sync_result
 
 - name: Trigger handler if source code changed
   become: true
