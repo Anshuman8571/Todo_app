@@ -35,4 +35,11 @@
       - "--exclude=.git"
       - "--exclude=.github"
       - "--exclude=ansible"
-    notify: Restart Backend
+    register: sync_result
+
+- name: Trigger handler if source code changed
+  become: true
+  ansible.builtin.command: /bin/true # 2. Use a dummy command that does nothing
+  changed_when: false
+  when: sync_result.changed # 3. Run this task ONLY when the sync task reported a change
+  notify: Restart Backend # 4. Notify the handler from this task
