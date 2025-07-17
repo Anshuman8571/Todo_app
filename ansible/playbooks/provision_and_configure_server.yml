@@ -11,7 +11,7 @@
   gather_facts: false
 
 - name: Configuration of EC2 instances
-  hosts: launcged_ec2_instances
+  hosts: launched_ec2_instances
   gather_facts: true
   roles:
     - common
