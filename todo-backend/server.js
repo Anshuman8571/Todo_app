@@ -5,7 +5,7 @@ const connectDB = require("./db")
 
 const dotenv = require("dotenv")
 const { connect } = require("mongoose")
-const todoRoutes = require("./routes/todoRoutes");
+const todoRoutes = require("./routes/TodoRoutes");
 dotenv.config()
 
 const app = express(); //Calling the application
