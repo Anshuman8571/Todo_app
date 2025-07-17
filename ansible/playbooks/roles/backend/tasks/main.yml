@@ -11,7 +11,7 @@
   become: true
   community.general.npm:
     name: dotenv
-    global: true
+    global: false
     path: /opt/todo-app/todo-backend
 
 - name: Install PM2
