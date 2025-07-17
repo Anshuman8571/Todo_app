@@ -20,7 +20,7 @@
 
 - name: Debugging start.js existence
   debug: 
-    msg: "start_js.stat.exists"
+    var: start_js.stat.exists
 
 - name: Check the pm2 list
   become: true
@@ -43,4 +43,4 @@
   become: true
   command: pm2 startup
   args:
-   chdir: /opt/todo-app/todo-backend/start.js
+   chdir: /opt/todo-app/todo-backend/
