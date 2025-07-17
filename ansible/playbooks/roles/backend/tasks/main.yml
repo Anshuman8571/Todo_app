@@ -20,7 +20,7 @@
     dest: /opt/todo-app/todo-backend/.env
     content: |
       MONGO_URI={{ lookup('env','secrets.MONGODB_URI') }}
-      PORT = 3000
+      PORT = 3001
 
 - name: Check is start.js exists
   stat:
@@ -54,9 +54,9 @@
   args:
    chdir: /opt/todo-app/todo-backend/
 
-- name: Verify backend is listening on port 3000
+- name: Verify backend is listening on port 3001
   become: true
-  command: "netstat -tulnp | grep 3000"
+  command: "netstat -tulnp | grep 3001"
   register: port_check
   changed_when: false
 
