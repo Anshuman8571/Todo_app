@@ -19,7 +19,7 @@
   copy:
     dest: /opt/todo-app/todo-backend/.env
     content: |
-      MONGO_URI={{ MONGO_URI }}
+      MONGO_URI={{ secrets.env.MONGO_URI }}
       PORT = 3001
 
 - name: Start or restart the backend using ecosystem file
