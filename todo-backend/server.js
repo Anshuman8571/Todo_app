@@ -6,6 +6,7 @@ const connectDB = require("./db")
 const dotenv = require("dotenv")
 const { connect } = require("mongoose")
 const todoRoutes = require("./routes/TodoRoutes");
+const path = require('path')
 dotenv.config()
 
 const app = express(); //Calling the application
@@ -20,6 +21,12 @@ connectDB()
 app.get("/ping", (req, res) => {
   res.send("Server is up ✅");
 });
+
+app.use(express.static(path.join(__dirname, "../todo-frontend/build")))
+
+app.get("/{*any}", (req, res) =>{
+    res.sendFile(path.join(__dirname, "../todo-frontend/build", "index.html"))
+})
 
 module.exports = app;
 // const startServer = async () => {
