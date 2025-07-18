@@ -16,6 +16,6 @@
   roles:
     - common
     - backend
-    # - frontend
+    - frontend
 
   
