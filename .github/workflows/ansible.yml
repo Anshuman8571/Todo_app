@@ -46,10 +46,7 @@ jobs:
       -e "MONGO_URI=${{ secrets.MONGO_URI }}"
 
      env:
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_ID }}
-      AWS_SECRET_ACCESS_ID: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      EC2_SSH_KEY_PATH: ~/.ssh/ec2_key.pem
+      # AWS_SECRET_ACCESS_KEY: {{ secrets.AWS_SECRET_ACCESS_ID }}
+      # AWS_SECRET_ACCESS_ID: {{ secrets.AWS_SECRET_ACCESS_KEY }}
+      # EC2_SSH_KEY_PATH: ~/.ssh/ec2_key.pem
       ANSIBLE_HOST_KEY_CHECKING: false 
-
-
-
