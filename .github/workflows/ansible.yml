@@ -42,8 +42,8 @@ jobs:
    - name: Run Ansible playbook
      run: |
       ansible-playbook ansible/playbooks/provision_and_configure_server.yml \
-      -e "ec2_ssh_key_path=~/.ssh/ec2_key.pem" \
-      -e "MONGO_URI=${{ secrets.MONGO_URI }}"
+      -e "ec2_ssh_key_path=~/.ssh/ec2_key.pem" 
+#      -e "MONGO_URI={{ secrets.MONGO_URI }}"
 
      env:
       # AWS_SECRET_ACCESS_KEY: {{ secrets.AWS_SECRET_ACCESS_ID }}
