@@ -42,10 +42,10 @@ jobs:
    - name: Verify MONGO_URI Secret
      run: |
       if [[ -n "${{ secrets.MONGO_URI }}" && "${{ secrets.MONGO_URI }}" == "mongodb"* ]]; then
-       echo "✅ MONGO_URI secret is available and starts with 'mongodb'."
+        echo "✅ MONGO_URI secret is available and starts with 'mongodb'."
       else
-       echo "❌ CRITICAL: MONGO_URI secret is empty, invalid, or not accessible."
-      exit 1
+        echo "❌ CRITICAL: MONGO_URI secret is empty, invalid, or not accessible."
+        exit 1
       fi
    - name: Run Ansible playbook
      run: |
