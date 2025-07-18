@@ -39,7 +39,9 @@ jobs:
    - name: Debug SSH key
      run: ls -l ~/.ssh/ec2_key.pem
 
-   - name: Verify MONGO_URI Secret
+   - name: Verify MONGO_URI Secret # ✅ CORRECTED: Added an `env` block to make the secret available
+     env:
+      MONGO_URI: ${{ secrets.MONGO_URI }}
      run: |
       if [[ -n "$MONGO_URI" && "$MONGO_URI" == mongodb* ]]; then
         echo "✅ MONGO_URI is valid."
