@@ -19,7 +19,7 @@
   copy:
     dest: /opt/todo-app/todo-backend/.env
     content: |
-      MONGODB_URI="{{ MONGODB_URI }}"
+      MONGODB_URI="{{ secrets.MONGODB_URI }}"
       PORT = 3001
 
 - name: Check is start.js exists
