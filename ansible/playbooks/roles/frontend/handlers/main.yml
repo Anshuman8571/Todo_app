@@ -1,3 +1,8 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # handlers file for frontend
+- name: Restart Apache 
+  become: true
+  ansible.builtin.service:
+    name: httpd
+    state: restarted
