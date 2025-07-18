@@ -41,17 +41,17 @@ jobs:
 
    - name: Verify MONGO_URI Secret
      run: |
-      if [[ -n "${{ secrets.MONGO_URI }}" && "${{ secrets.MONGO_URI }}" == "mongodb"* ]]; then
-        echo "✅ MONGO_URI secret is available and starts with 'mongodb'."
+      if [[ -n "$MONGO_URI" && "$MONGO_URI" == mongodb* ]]; then
+        echo "✅ MONGO_URI is valid."
       else
-        echo "❌ CRITICAL: MONGO_URI secret is empty, invalid, or not accessible."
+        echo "❌ MONGO_URI is missing or malformed."
         exit 1
       fi
    - name: Run Ansible playbook
      run: |
       ansible-playbook ansible/playbooks/provision_and_configure_server.yml \
       -e "ec2_ssh_key_path=~/.ssh/ec2_key.pem" \
-      -e 'MONGO_URI=${{ secrets.MONGO_URI }}'
+      -e "MONGO_URI=${{ secrets.MONGO_URI }}"
 
      env:
       # AWS_SECRET_ACCESS_KEY: {{ secrets.AWS_SECRET_ACCESS_ID }}
