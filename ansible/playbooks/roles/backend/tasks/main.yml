@@ -54,24 +54,24 @@
 
   
 
-# - name: Check is start.js exists
-#   stat:
-#     path: /opt/todo-app/todo-backend/start.js
-#   register: start_js
+- name: Check is start.js exists
+  stat:
+    path: /opt/todo-app/todo-backend/start.js
+  register: start_js
 
-# - name: Debugging start.js existence
-#   debug: 
-#     var: start_js.stat.exists
+- name: Debugging start.js existence
+  debug: 
+    var: start_js.stat.exists
 
-# - name: Check the pm2 list
-#   become: true
-#   command: pm2 list
-#   register: pm2_list
-#   changed_when: false
+- name: Check the pm2 list
+  become: true
+  command: pm2 list
+  register: pm2_list
+  changed_when: false
 
-# - name: Debug the pm2 list
-#   debug:
-#     var: pm2_list.stdout_lines
+- name: Debug the pm2 list
+  debug:
+    var: pm2_list.stdout_lines
 
 # - name: Start or restart the backend
 #   become: true
