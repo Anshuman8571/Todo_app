@@ -1,0 +1,12 @@
+module.exports = {
+  apps: [{
+    name: 'todo-backend',
+    script: 'start.js',
+    // Uncomment the lines below to run in cluster mode
+    // instances: 'max',
+    // exec_mode: 'cluster',
+    env: {
+      NODE_ENV: 'production'
+    }
+  }]
+};
