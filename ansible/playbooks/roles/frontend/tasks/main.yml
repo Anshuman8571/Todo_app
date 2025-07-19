@@ -25,12 +25,12 @@
   args:
     chdir: /opt/todo-app/todo-frontend
 
-- name: Configure Apache to server the frontend application
-  become: true
-  ansible.builtin.template: 
-    src: todo-app.conf.j2
-    dest: /etc/httpd/conf.d/todo-app.conf
-  notify: Restart Apache
+# - name: Configure Apache to server the frontend application
+#   become: true
+#   ansible.builtin.template: 
+#     src: todo-app.conf.j2
+#     dest: /etc/httpd/conf.d/todo-app.conf
+#   notify: Restart Apache
 
 # - name: Configure Apache as a reverse proxy
 #   become: true
