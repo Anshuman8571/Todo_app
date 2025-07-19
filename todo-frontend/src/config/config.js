@@ -1,3 +1,3 @@
-const BACKEND_URL = "http://localhost:3001/api"
+const BACKEND_URL = "/api"
 
 export default BACKEND_URL

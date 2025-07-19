@@ -1,21 +1,84 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # tasks file for common
-- name: Install common packages
+- name: Install apache web server
+  become: true
+  ansible.builtin.yum:
+    name: "{{ apache_pkg_name }}"
+    state: present
+  tags: [apache, install]
+
+
+- name: Start and Enable Apache
+  become: true
+  ansible.builtin.service: 
+    name: "{{ apache_service_name }}"
+    state: started
+    enabled: yes
+  tags: [apache, service]
+
+- name: Ensure apache proxy modules are enabled in httpd.conf
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/httpd/conf/httpd.conf
+    regexp: '^#LoadModule (proxy_module|proxy_http_module)'
+    line: 'LoadModule \1 modules/\1.so'
+    backrefs: true
+  notify: restart apache # Notify handler if changes are made
+  tags: [apache, config]
+ 
+- name: Deploy Virtual host conf for application proxy
+  become: true
+  ansible.builtin.template:
+    src: app_proxy.conf.j2
+    dest: "{{ apache_conf_dir }}/app_proxy.conf"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart apache
+  tags: [apache, config]
+
+- name: Set SELinux boolean to allow httpd to connect to network
+  become: true
+  ansible.builtin.command: /usr/sbin/setsebool -P httpd_can_network_connect 1
+  args:
+    creates: /var/lib/selinux/targeted/active/booleans/httpd_can_network_connect # Idempotency check
+  when: ansible_selinux.status == "enforcing" # Only run if SELinux is active
+  tags: [selinux] 
+
+- name: Set SELinux boolean to allow httpd to relay network traffic
+  become: true
+  ansible.builtin.command: /usr/sbin/setsebool -P httpd_can_network_relay 1
+  args:
+    creates: /var/lib/selinux/targeted/active/booleans/httpd_can_network_relay # Idempotency check
+  when: ansible_selinux.status == "enforcing"
+  tags: [selinux]
+
+- name: Open HTTP port 80 in firewalld
+  become: true
+  ansible.posix.firewalld:
+    service: http
+    state: enabled
+    permanent: true
+    immediate: true
+  when: ansible_facts['service_mgr'] == "firewalld" # Only run if firewalld is the active firewall
+  tags: [firewall]
+
+- name: Ensure Apache is restarted to apply all changes
+  become: true
+  ansible.builtin.service:
+    name: "{{ apache_service_name }}"
+    state: restarted
+  tags: [apache, service]
+
+
+- name: Install nodejs and npm
   become: true
   ansible.builtin.package: 
     name:
-      - httpd
       - nodejs
       - npm
     state: present
-
-# - name: Start and Enable Apache
-#   become: true
-#   ansible.builtin.service: 
-#     name: httpd
-#     state: started
-#     enabled: yes
 
 - name: Ensure target directory exists
   become: true
@@ -49,7 +112,7 @@
       - "--exclude=.github"
       - "--exclude=ansible"
       - "--exclude=node_modules"
-  register: sync_result
+  register: sync_result_frontend
 
 - name: Trigger handler if source code changed
   become: true

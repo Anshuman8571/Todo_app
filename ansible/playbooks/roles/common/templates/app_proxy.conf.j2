@@ -1,0 +1,25 @@
+# roles/common/templates/app_proxy.conf.j2
+<VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    ServerName {{ apache_server_name }}
+
+    ErrorLog {{ apache_log_dir }}/{{ apache_server_name }}_error.log
+    CustomLog {{ apache_log_dir }}/{{ apache_server_name }}_access.log combined
+
+    LoadModule proxy_module modules/mod_proxy.so
+    LoadModule proxy_http_module modules/mod_proxy_http.so
+
+    # Proxy API requests to the backend application
+    ProxyPass {{ api_proxy_path }} {{ app_proxy_target }}{{ api_proxy_path }}
+    ProxyPassReverse {{ api_proxy_path }} {{ app_proxy_target }}{{ api_proxy_path }}
+
+    # Serve frontend static files
+    DocumentRoot {{ frontend_docroot }}
+
+    <Directory {{ frontend_docroot }}>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+        # FallbackResource /index.html (if you have an SPA like React, Vue)
+    </Directory>
+</VirtualHost>

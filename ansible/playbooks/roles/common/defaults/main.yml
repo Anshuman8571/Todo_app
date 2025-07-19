@@ -1,3 +1,15 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # defaults file for common
+apache_pkg_name: httpd
+apache_service_name: httpd
+apache_conf_dir: /etc/httpd/conf.d
+apache_log_dir: /var/log/httpd
+apache_server_name: "{{ ansible_host }}" # Will resolve to your public IP
+
+# Application-specific variables (needed by Apache proxy)
+app_internal_port: 3001 # <--- THIS IS YOUR BACKEND'S ACTUAL LISTENING PORT
+app_proxy_target: "http://127.0.0.1:{{ app_internal_port }}"
+api_proxy_path: /api/ # The public path Apache will proxy for your API
+
+frontend_docroot: /var/www/html/your_frontend_app # Where frontend static files will go
