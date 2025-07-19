@@ -10,12 +10,12 @@
       - npm
     state: present
 
-- name: Start and Enable Apache
-  become: true
-  ansible.builtin.service: 
-    name: httpd
-    state: started
-    enabled: yes
+# - name: Start and Enable Apache
+#   become: true
+#   ansible.builtin.service: 
+#     name: httpd
+#     state: started
+#     enabled: yes
 
 - name: Ensure target directory exists
   become: true
