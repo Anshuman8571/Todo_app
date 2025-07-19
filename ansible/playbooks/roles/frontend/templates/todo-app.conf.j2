@@ -1,0 +1,19 @@
+<VirtualHost *:80>
+    # This is the public address of your server.
+    # We use a variable that can be set in Ansible.
+    # It defaults to the server's fully qualified domain name if not set.
+    ServerName {{ server_name | default(ansible_fqdn) }}
+
+    # These directives are the core of the reverse proxy
+    ProxyPreserveHost On
+    ProxyRequests Off
+
+    # Forward all requests (/) to the backend app running on the specified port
+    # Example: http://127.0.0.1:8000/
+    ProxyPass / http://127.0.0.1:{{ backend_port }}/
+    ProxyPassReverse / http://127.0.0.1:{{ backend_port }}/
+
+    # Optional: Custom log files for this specific site
+    ErrorLog ${APACHE_LOG_DIR}/todo-app-error.log
+    CustomLog ${APACHE_LOG_DIR}/todo-app-access.log combined
+</VirtualHost>
