@@ -1,6 +1,11 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # tasks file for backend
+- name: Clear all old PM2 processes
+  become: true
+  ansible.builtin.command: pm2 delete all
+  failed_when: false
+
 - name: Install backend dependencies
   become: true
   community.general.npm:
