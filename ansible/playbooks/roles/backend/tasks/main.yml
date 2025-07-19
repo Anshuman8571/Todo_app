@@ -43,7 +43,7 @@
 
 - name: Run the pm2 startup command to register on boot
   become: true
-  ansible.builtin.shell: "{{ pm2_startup_cmd.stdout }}"
+  ansible.builtin.shell: "{{ pm2_startup_cmd.stdout | replace('$ ', '') }}"
   when: pm2_startup_cmd.stdout is defined and pm2_startup_cmd.stdout != ""
 
 - name: Save the current pm2 process list to run on boot
