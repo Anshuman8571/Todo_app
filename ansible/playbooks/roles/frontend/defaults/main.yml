@@ -1,3 +1,21 @@
-#SPDX-License-Identifier: MIT-0
+# roles/frontend/defaults/main.yml
 ---
-# defaults file for frontend
+# Path on the Ansible control machine where the frontend source code is located
+frontend_source_path_local: "{{ playbook_dir }}/../../todo-frontend/"
+
+# Temporary directory on the remote server where frontend code will be copied for build/direct deployment
+frontend_build_temp_path_remote: "/opt/todo-app/todo-frontend-temp"
+
+# Common name for the built output directory (e.g., 'build', 'dist')
+frontend_build_output_dir_name: "build"
+
+# User/group for application files on the remote server (for build temp dir)
+frontend_app_owner: ec2-user
+frontend_app_group: ec2-user
+
+# User/group for final deployed frontend files (must be readable by Apache)
+frontend_final_owner: root
+frontend_final_group: apache
+
+# --- NEW VARIABLE TO CONTROL BUILD PROCESS ---
+frontend_skip_build: false # Set to 'true' in playbook/inventory to skip npm install and npm run build

@@ -1,11 +1,6 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # tasks file for frontend
-- name: Ensure Apache is installed 
-  become: true
-  ansible.builtin.package:
-    name: httpd
-    state: present
 
 # - name: Install frontend dependencies
 #   become: true
@@ -13,17 +8,45 @@
 #     path: /opt/todo-app/todo-frontend
 #     state: present
 
+- name: Ensure frontend temporary build directory exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ frontend_build_temp_path_remote }}" # Uses variable from frontend/defaults
+    state: directory
+    mode: '0755'
+    owner: "{{ frontend_app_owner }}" # Uses variable (e.g., ec2-user)
+    group: "{{ frontend_app_group }}" # Uses variable (e.g., ec2-user)
+  tags: [frontend, deploy]
+
+- name: Copy Source Code
+  become: true
+  ansible.posix.synchronize:
+    src: "{{ playbook_dir }}/../../todo-frontend/"
+    dest: "/opt/todo-app/todo-frontend"
+    delete: yes
+    recursive: yes
+    rsync_opts:
+      - "--exclude=.git"
+      - "--exclude=.github"
+      - "--exclude=ansible"
+      - "--exclude=node_modules"
+  register: sync_result_frontend
+
 - name: Install frontend dependencies
   become: true
-  ansible.builtin.command: npm install
-  args:
-    chdir: /opt/todo-app/todo-frontend
+  community.general.npm: 
+    path: "{{ frontend_build_temp_path_remote }}" # Run npm install in the temporary build directory
+    state: present
+  register: frontend_npm_install_result 
 
 - name: Build frontend
   become: true
-  command: npm run build
+  ansible.builtin.command: "npm run build"
   args:
-    chdir: /opt/todo-app/todo-frontend
+    chdir: "{{ frontend_build_temp_path_remote }}" # Run build in the temporary build directory
+  register: frontend_build_result
+  changed_when: frontend_build_result.rc != 0 # Assume build implies change if rc is not 0
+  tags: [frontend, deploy]
 
 # - name: Configure Apache to server the frontend application
 #   become: true
@@ -38,3 +61,127 @@
 #     src: todo-app.conf.j2
 #     dest: /etc/httpd/conf.d/todo-app.conf
 #   notify: Restart Apache
+# Inside roles/frontend/tasks/main.yml, after npm install/build
+
+- name: Ensure final frontend DocumentRoot directory exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ frontend_docroot }}" # Assumed from common/defaults
+    state: directory
+    owner: "{{ frontend_final_owner }}"
+    group: "{{ frontend_final_group }}"
+    mode: '0755'
+  tags: [frontend, deploy]
+
+# - name: Copy built frontend files to final Apache DocumentRoot
+#   become: true
+#   ansible.builtin.copy:
+#     src: "/opt/todo-app/todo-frontend-temp/build/" # Source is your built output
+#     dest: "{{ frontend_docroot }}/" # Destination must match Apache's DocumentRoot
+#     remote_src: yes
+#     owner: root
+#     group: apache
+#     mode: '0644'
+#   register: frontend_copy_final_result
+#   tags: [frontend, deploy]
+#   notify: restart apache # Re-notify Apache for new static files
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for frontend
+
+# - name: Install frontend dependencies
+#   become: true
+#   npm: 
+#     path: /opt/todo-app/todo-frontend
+#     state: present
+
+- name: Ensure frontend temporary build directory exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ frontend_build_temp_path_remote }}" # Uses variable from frontend/defaults
+    state: directory
+    mode: '0755'
+    owner: "{{ frontend_app_owner }}" # Uses variable (e.g., ec2-user)
+    group: "{{ frontend_app_group }}" # Uses variable (e.g., ec2-user)
+  tags: [frontend, deploy]
+
+- name: Copy Source Code
+  become: true
+  ansible.posix.synchronize:
+    src: "{{ playbook_dir }}/../../todo-frontend/"
+    dest: "/opt/todo-app/todo-frontend"
+    delete: yes
+    recursive: yes
+    rsync_opts:
+      - "--exclude=.git"
+      - "--exclude=.github"
+      - "--exclude=ansible"
+      - "--exclude=node_modules"
+  register: sync_result_frontend
+
+- name: Install frontend dependencies
+  become: true
+  community.general.npm: 
+    path: "{{ frontend_build_temp_path_remote }}" # Run npm install in the temporary build directory
+    state: present
+  register: frontend_npm_install_result 
+
+- name: Build frontend
+  become: true
+  ansible.builtin.command: "npm run build"
+  args:
+    chdir: "{{ frontend_build_temp_path_remote }}" # Run build in the temporary build directory
+  register: frontend_build_result
+  changed_when: frontend_build_result.rc != 0 # Assume build implies change if rc is not 0
+  tags: [frontend, deploy]
+
+# - name: Configure Apache to server the frontend application
+#   become: true
+#   ansible.builtin.template: 
+#     src: todo-app.conf.j2
+#     dest: /etc/httpd/conf.d/todo-app.conf
+#   notify: Restart Apache
+
+# - name: Configure Apache as a reverse proxy
+#   become: true
+#   ansible.builtin.template:
+#     src: todo-app.conf.j2
+#     dest: /etc/httpd/conf.d/todo-app.conf
+#   notify: Restart Apache
+# Inside roles/frontend/tasks/main.yml, after npm install/build
+
+- name: Ensure final frontend DocumentRoot directory exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ frontend_docroot }}" # Assumed from common/defaults
+    state: directory
+    owner: "{{ frontend_final_owner }}"
+    group: "{{ frontend_final_group }}"
+    mode: '0755'
+  tags: [frontend, deploy]
+
+- name: Copy built frontend files to final Apache DocumentRoot
+  become: true
+  ansible.builtin.copy:
+    src: "/opt/todo-app/todo-frontend-temp/build/" # Source is your built output
+    dest: "{{ frontend_docroot }}/" # Destination must match Apache's DocumentRoot
+    remote_src: yes
+    owner: root
+    group: apache
+    mode: '0644'
+  register: frontend_copy_final_result
+  tags: [frontend, deploy]
+  notify: restart apache # Re-notify Apache for new static files
+
+- name: Clean up temporary frontend build directory
+  become: true
+  ansible.builtin.file:
+    path: "{{ frontend_build_temp_path_remote }}"
+    state: absent
+  tags: [frontend, deploy]
+- name: Clean up temporary frontend build directory
+  become: true
+  ansible.builtin.file:
+    path: "{{ frontend_build_temp_path_remote }}"
+    state: absent
+  tags: [frontend, deploy]
