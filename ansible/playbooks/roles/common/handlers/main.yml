@@ -8,7 +8,6 @@
 #     state: restarted
 
 # roles/common/handlers/main.yml
----
 # ... (your existing common handlers) ...
 
 - name: restart apache
