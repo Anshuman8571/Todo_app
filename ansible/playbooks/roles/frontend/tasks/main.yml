@@ -1,12 +1,23 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # tasks file for frontend
-- name: Install frontend dependencies
+- name: Ensure Apache is installed 
   become: true
-  npm: 
-    path: /opt/todo-app/todo-frontend
+  ansible.builtin.package:
+    name: httpd
     state: present
 
+# - name: Install frontend dependencies
+#   become: true
+#   npm: 
+#     path: /opt/todo-app/todo-frontend
+#     state: present
+
+- name: Install frontend dependencies
+  become: true
+  ansible.builtin.command: npm install
+  args:
+    chdir: /opt/todo-app/todo-frontend
 
 - name: Build frontend
   become: true
@@ -14,15 +25,16 @@
   args:
     chdir: /opt/todo-app/todo-frontend
 
-- name: Install PM2 globally
+- name: Configure Apache to server the frontend application
   become: true
-  npm: 
-    name: pm2
-    global: yes
-
-- name: Configure Apache as a reverse proxy
-  become: true
-  ansible.builtin.template:
+  ansible.builtin.template: 
     src: todo-app.conf.j2
     dest: /etc/httpd/conf.d/todo-app.conf
   notify: Restart Apache
+
+# - name: Configure Apache as a reverse proxy
+#   become: true
+#   ansible.builtin.template:
+#     src: todo-app.conf.j2
+#     dest: /etc/httpd/conf.d/todo-app.conf
+#   notify: Restart Apache
