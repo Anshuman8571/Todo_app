@@ -21,8 +21,8 @@
 - name: Copy Source Code
   become: true
   ansible.posix.synchronize:
-    src: "{{ playbook_dir }}/../../todo-frontend/"
-    dest: "/opt/todo-app/todo-frontend"
+    src: "{{ frontend_source_path_local }}"
+    dest: "{{ frontend_build_temp_path_remote }}"
     delete: yes
     recursive: yes
     rsync_opts:
@@ -172,12 +172,6 @@
   tags: [frontend, deploy]
   notify: restart apache # Re-notify Apache for new static files
 
-- name: Clean up temporary frontend build directory
-  become: true
-  ansible.builtin.file:
-    path: "{{ frontend_build_temp_path_remote }}"
-    state: absent
-  tags: [frontend, deploy]
 - name: Clean up temporary frontend build directory
   become: true
   ansible.builtin.file:
