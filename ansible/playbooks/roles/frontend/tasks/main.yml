@@ -108,7 +108,7 @@
   become: true
   ansible.posix.synchronize:
     src: "{{ playbook_dir }}/../../todo-frontend/"
-    dest: "/opt/todo-app/todo-frontend"
+    dest: "{{ frontend_build_temp_path_remote }}"
     delete: yes
     recursive: yes
     rsync_opts:

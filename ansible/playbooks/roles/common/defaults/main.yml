@@ -12,4 +12,4 @@ app_internal_port: 3001 # <--- THIS IS YOUR BACKEND'S ACTUAL LISTENING PORT
 app_proxy_target: "http://127.0.0.1:{{ app_internal_port }}"
 api_proxy_path: /api/ # The public path Apache will proxy for your API
 
-frontend_docroot: /var/www/html/your_frontend_app # Where frontend static files will go
+frontend_docroot: /var/www/html/todo-frontend # Where frontend static files will go
