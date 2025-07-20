@@ -1,17 +1,17 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # handlers file for common
-# - name: Restart Apache
-#   become: true
-#   ansible.builtin.service:
-#     name: httpd
-#     state: restarted
+- name: Restart Apache
+  become: true
+  ansible.builtin.service:
+    name: httpd
+    state: restarted
 
 # roles/common/handlers/main.yml
 # ... (your existing common handlers) ...
 
-- name: restart apache
-  ansible.builtin.service:
-    name: "{{ apache_service_name }}"
-    state: restarted
-  listen: "restart apache"
+# - name: restart apache
+#   ansible.builtin.service:
+#     name: "{{ apache_service_name }}"
+#     state: restarted
+#   listen: "restart apache"
