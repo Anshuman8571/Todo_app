@@ -149,15 +149,15 @@
 #   notify: Restart Apache
 # Inside roles/frontend/tasks/main.yml, after npm install/build
 
-- name: Ensure final frontend DocumentRoot directory exists
-  become: true
-  ansible.builtin.file:
-    path: "{{ frontend_docroot }}" # Assumed from common/defaults
-    state: directory
-    owner: "{{ frontend_final_owner }}"
-    group: "{{ frontend_final_group }}"
-    mode: '0755'
-  tags: [frontend, deploy]
+# - name: Ensure final frontend DocumentRoot directory exists
+#   become: true
+#   ansible.builtin.file:
+#     path: "{{ frontend_docroot }}" # Assumed from common/defaults
+#     state: directory
+#     owner: "{{ frontend_final_owner }}"
+#     group: "{{ frontend_final_group }}"
+#     mode: '0755'
+#   tags: [frontend, deploy]
 
 - name: Copy built frontend files to final Apache DocumentRoot
   become: true
@@ -171,6 +171,17 @@
   register: frontend_copy_final_result
   tags: [frontend, deploy]
   notify: restart apache # Re-notify Apache for new static files
+
+- name: Recursively fix ownership and permissions of frontend files
+  become: true
+  ansible.builtin.file:
+    path: "{{ frontend_docroot }}"
+    state: directory
+    recurse: true
+    owner: "{{ frontend_final_owner }}"
+    group: "{{ frontend_final_group }}"
+    mode: '0755'
+  tags: [frontend, deploy]
 
 - name: Clean up temporary frontend build directory
   become: true

@@ -91,14 +91,14 @@
 #   args:
 #    chdir: /opt/todo-app/todo-backend/
 
-# - name: Verify backend is listening on port 3001
-#   become: true
-#   command: "netstat -tulnp | grep 3001"
-#   register: port_check
-#   changed_when: false
+- name: Verify backend is listening on port 3001
+  become: true
+  command: "netstat -tulnp | grep 3001"
+  register: port_check
+  changed_when: false
 
-# - name: Debug port binding
-#   debug:
-#     var: port_check.stdout_lines
+- name: Debug port binding
+  debug:
+    var: port_check.stdout_lines
 
 
