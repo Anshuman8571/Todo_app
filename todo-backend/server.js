@@ -2,7 +2,7 @@ const express = require("express") // Creating an Express Server
 const cors = require("cors")
 const bodyParser = require("body-parser")
 const connectDB = require("./db")
-
+const authRoutes = require('./routes/auth.routes')
 const dotenv = require("dotenv")
 const { connect } = require("mongoose")
 const todoRoutes = require("./routes/TodoRoutes");
@@ -21,7 +21,8 @@ connectDB()
 app.get("/ping", (req, res) => {
   res.send("Server is up ✅");
 });
-
+app.use('/api/auth',authRoutes);
+app.use('/api/todos',todoRoutes);
 app.use(express.static(path.join(__dirname, "../todo-frontend/build")))
 
 app.get("/{*any}", (req, res) =>{

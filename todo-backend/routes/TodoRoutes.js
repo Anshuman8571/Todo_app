@@ -1,6 +1,7 @@
 console.log(">>>>>> LOADING THE CORRECT TodoRoutes.js FILE <<<<<<");
 const express = require("express")
 const {getTodos,addTodo,deleteTodo} = require("../controllers/todoController")
+const { register,login } = require('../controllers/todoController')
 const router = express.Router()
 
 router.get("/get-todos", getTodos)
