@@ -5,7 +5,7 @@ const logger = require("../utils/logger")
 exports.getTodos = async(req,res) =>{
     console.log("Fetching the todos from DB")
     try{
-        const todos = await Todo.find();
+        const todos = await Todo.find({userId:req.user._id});
         // console.log("Fetch all the todos",todos)
         logger.info("Fetched all the todos",todos)
         res.status(200).json(todos)

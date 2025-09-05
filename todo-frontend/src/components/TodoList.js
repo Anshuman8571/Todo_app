@@ -1,73 +1,121 @@
-import React, {useState,useEffect} from "react";
-// useState is used for storing some values
-// when out page is refreshed and we want something to be happen then use this useEffect
+import React, { useState, useEffect, useContext } from "react";
 import AddTodo from "./AddTodo";
 import TodoItem from "./TodoItem";
-import BACKEND_URL from "../config/config";
+import { fetchTodos, createTodo, deleteTodo as deleteTodoApi } from "../api";
+import { AuthContext } from "../context/AuthContext";
 
-const TodoList = () =>{
-    const [todos,setTodos] = useState([])
+const TodoList = () => {
+  const [todos, setTodos] = useState([]);
+  const { token } = useContext(AuthContext); // expects token provided by AuthContext
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-    useEffect(()=>{
-        fetchTodos();
-    }, [])
+  // Normalize many possible response shapes to an array.
+  const normalizeTodos = (payload) => {
+    if (Array.isArray(payload)) return payload;
+    if (Array.isArray(payload?.todos)) return payload.todos;
+    if (Array.isArray(payload?.data)) return payload.data;
+    // sometimes axios wraps response as { data: [...] } but fetchTodos() should return axios res
+    if (Array.isArray(payload?.data?.todos)) return payload.data.todos;
+    return [];
+  };
 
-    const fetchTodos = async () => { // using async because we are makina BE call
-        try{
-            const response = await fetch(`${BACKEND_URL}/get-todos`) // to make an API call we are using fetch here, there-are more libraries like this
-            const data = await response.json();
-            setTodos(data);
-            console.log(data)
-        } catch(error){
-            console.error("Error fetching the data",error)
-        }
+  // Load when token becomes available (protected route usually sets token before redirect)
+  useEffect(() => {
+    if (!token) return; // don't try to load if we have no token
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
+
+  async function load() {
+    setError("");
+    setLoading(true);
+    try {
+      // If your api.fetchTodos expects a token param, pass it; otherwise your api may use an interceptor.
+      // We're calling with token — if api uses interceptor it will simply ignore the extra arg.
+      const res = await fetchTodos(token);
+      // If using axios, real payload is res.data
+      const payload = res?.data ?? res;
+      const list = normalizeTodos(payload);
+      setTodos(list);
+      console.log("Loaded todos:", list);
+    } catch (err) {
+      console.error("fetchTodos failed", err);
+      // Try to extract a useful message from axios error shape
+      const msg = err?.response?.data?.message || err?.message || "Failed to load todos";
+      setError(msg);
+      setTodos([]); // keep an array so UI doesn't break
+    } finally {
+      setLoading(false);
     }
+  }
 
-    const addTodo =async(title) =>{
-        try{
-            const response = await fetch(`${BACKEND_URL}/add-todo`,{
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ title })
-            })
-            const newTodo = await response.json();
-            // setTodos((prev)=>[...prev, newTodo])
-            fetchTodos(); // here we can use both, last step was used by sir and this by me
-            console.log("Response recieved",response)
-        } catch(error){
-            console.error("Error while creating the todo",error)
-        }
+  async function addTodo(title) {
+    setError("");
+    try {
+      // createTodo may expect (data, token) — pass token to be safe
+      const res = await createTodo({ title }, token);
+      // If backend returns created item in res.data, you can optimistically append:
+      const created = res?.data ?? null;
+      if (created && (created._id || created.id)) {
+        setTodos((prev) => [...prev, created]);
+      } else {
+        // fallback: re-fetch authoritative list
+        await load();
+      }
+    } catch (err) {
+      console.error("createTodo failed", err);
+      setError(err?.response?.data?.message || err?.message || "Failed to create todo");
     }
+  }
 
-    const deleteTodo =async(id) =>{
-        try{
-            const response = await fetch(`${BACKEND_URL}/delete-todo/${id}`,{
-                method: "DELETE",
-            })
-            setTodos((prev)=>prev.filter((todo) => todo.id!=id))
-            fetchTodos();
-            console.log("Todo deleted successfully",response)
-        } catch(error){
-            console.error("Error while deleting todo",error)
-        }
+  async function deleteTodo(id) {
+    setError("");
+    // optimistic UI: remove immediately then call API
+    const previous = todos;
+    setTodos((prev) => prev.filter((t) => t._id !== id && t.id !== id));
+
+    try {
+      await deleteTodoApi(id, token);
+      // optionally re-sync: await load();
+    } catch (err) {
+      console.error("deleteTodo failed", err);
+      setError(err?.response?.data?.message || err?.message || "Failed to delete todo");
+      // rollback UI
+      setTodos(previous);
     }
-    return (
-        <div>
-            <h1>Todo List</h1>
-            {/*Add todo-component*/}
-            <AddTodo onAdd={addTodo}/> 
-            {/* addTodo will fetch the todo from the UI and */}
-            <ul>
-                {
-                    todos.map( todo =>(
-                        <TodoItem key={todo._id} todo = {todo} onDelete={deleteTodo}> </TodoItem>
-                    ))
-                }
-                {/* <TodoItem id={todo._id}> </TodoItem> */}
-            </ul>
+  }
+
+  return (
+    <div className="p-4">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-semibold">Todo List</h1>
+        {loading && <span className="text-sm text-gray-500">Loading…</span>}
+      </div>
+
+      {error && (
+        <div className="mb-4 text-sm text-red-600">
+          {error}
         </div>
-    )
-}
-export default TodoList
+      )}
+
+      <AddTodo onAdd={addTodo} />
+
+      <ul className="mt-4 space-y-2">
+        {Array.isArray(todos) && todos.length > 0 ? (
+          todos.map((todo) => (
+            <TodoItem
+              key={todo._id || todo.id}
+              todo={todo}
+              onDelete={() => deleteTodo(todo._id || todo.id)}
+            />
+          ))
+        ) : (
+          <li className="text-sm text-gray-500">No todos yet.</li>
+        )}
+      </ul>
+    </div>
+  );
+};
+
+export default TodoList;

@@ -22,10 +22,10 @@ app.get("/ping", (req, res) => {
   res.send("Server is up ✅");
 });
 app.use('/api/auth',authRoutes);
-app.use('/api/todos',todoRoutes);
+// app.use('/api/todos',todoRoutes);
 app.use(express.static(path.join(__dirname, "../todo-frontend/build")))
 
-app.get("/{*any}", (req, res) =>{
+app.get("/./", (req, res) =>{
     res.sendFile(path.join(__dirname, "../todo-frontend/build", "index.html"))
 })
 

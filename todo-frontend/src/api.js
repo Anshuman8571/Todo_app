@@ -1,14 +1,18 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: '/api',
+  baseURL: 'http://localhost:3001/api',
+});
+
+API.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token'); // or from a token store
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
 });
 
 export const registerUser = (data) => API.post('/auth/register', data);
 export const loginUser = (data) => API.post('/auth/login', data);
-export const fetchTodos = (token) =>
-  API.get('/todos', { headers: { Authorization: `Bearer ${token}` } });
-export const createTodo = (data, token) =>
-  API.post('/todos', data, { headers: { Authorization: `Bearer ${token}` } });
-export const deleteTodo = (id, token) =>
-  API.delete(`/todos/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+
+export const fetchTodos = () =>  API.get('/get-todos');
+export const createTodo = (data) => API.post('/add-todo',data);
+export const deleteTodo = (id) =>  API.delete(`/delete-todo/${id}`);
