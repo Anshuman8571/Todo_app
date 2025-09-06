@@ -14,7 +14,6 @@ app.use(cors()) // To create a contact b/w FE and BE
 app.use(bodyParser.json()) // The data which will be send will be in json form
 app.use(express.json()) // Another middleware for creating route
 
-app.use('/api',todoRoutes)
 
 connectDB()
 
@@ -22,6 +21,7 @@ app.get("/ping", (req, res) => {
   res.send("Server is up ✅");
 });
 app.use('/api/auth',authRoutes);
+app.use('/api',todoRoutes)
 // app.use('/api/todos',todoRoutes);
 app.use(express.static(path.join(__dirname, "../todo-frontend/build")))
 
@@ -30,13 +30,3 @@ app.get("/./", (req, res) =>{
 })
 
 module.exports = app;
-// const startServer = async () => {
-//   await connectDB();
-//   app.listen(PORT, () => {
-//     console.log(`Server is running on port ${PORT}`);
-//   });
-// };
-// startServer();
-
-
-// app.use()

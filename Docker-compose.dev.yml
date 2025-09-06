@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./todo-backend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./todo-backend:/app:delegated
+      - /app/node_modules   # anonymous volume hides host node_modules
+    environment:
+      - MONGO_URL=${MONGO_URI}
+      - NODE_ENV=development
+    ports:
+      - "3001:3001"
+    depends_on:
+      - mongo
+    networks:
+      - todo-net
+
+  frontend:
+    build:
+      context: ./todo-frontend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./todo-frontend:/app:delegated
+      - /app/node_modules
+    environment:
+      # force polling if you face filewatch issues in Docker Desktop/WSL
+      - CHOKIDAR_USEPOLLING=true
+      - BROWSER=none           # prevents CRA from opening a browser
+      - HOST=0.0.0.0
+    ports:
+      - "3000:3000"
+    
+    depends_on:
+      - backend
+    networks:
+      - todo-net
+
+  mongo:
+    image: mongo:5.0
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - todo-net
+
+volumes:
+  mongo-data:
+
+networks:
+  todo-net:
+    driver: bridge
