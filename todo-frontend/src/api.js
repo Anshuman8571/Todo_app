@@ -16,3 +16,4 @@ export const loginUser = (data) => API.post('/auth/login', data);
 export const fetchTodos = () =>  API.get('/get-todos');
 export const createTodo = (data) => API.post('/add-todo',data);
 export const deleteTodo = (id) =>  API.delete(`/delete-todo/${id}`);
+export const updateTodo = (id) => API.put(`/update-todo/${id}`)

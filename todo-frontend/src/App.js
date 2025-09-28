@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './components/Login';
 import Register from './components/Register';
 import TodoList from './components/TodoList';
+import Dashboard from './components/Dashboard';
+
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 
@@ -16,6 +18,7 @@ function App() {
           <Route path="/todos" element={
             <ProtectedRoute>
               <TodoList />
+              {/* <Dashboard /> */}
             </ProtectedRoute>
           } />
           { <Route path="*" element={<Navigate to="/login" replace/>} /> }

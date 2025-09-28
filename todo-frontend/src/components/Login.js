@@ -50,6 +50,9 @@ const Login = () => {
         <p className="register-link">
           Don’t have an account? <Link to="/register">Register here</Link>
         </p>
+        <p className="Forgot-Password">
+          Forgot Password <Link to="/forgotpassword">Forgot-Password</Link>
+        </p>
       </div>
     </div>
   );

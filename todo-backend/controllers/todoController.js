@@ -63,3 +63,26 @@ exports.deleteTodo = async (req, res) => {
     return res.status(500).json({ message: "Something went wrong deleting the todo" });
   }
 };
+
+exports.updateTodo = async (req,res) => {
+  try{
+    const {id} = req.params;
+    const todo = await Todo.findById(id);
+    if(!todo){
+      return res.status(404).json({message:"Todo not found"})
+    }
+    if(!todo.userId || todo.userId.toString() !== req.user._id.toString()){
+      logger.warn("Unauthorised update attempt",{todoId:id,requester:req.user._id});
+      return res.status(404).json({message:"Todo not found"});
+    }
+    todo.completed = !todo.completed;
+    const updatedTodo = await todo.save();
+    
+    logger.info("Todon Updated",updatedTodo);
+    return res.status(200).json(updatedTodo); 
+    
+  } catch(error){
+    logger.error("Error while updating a todo",error);
+    return res.status(500).json({message:"Something went wrong updating the todo"})
+  }
+}
