@@ -24,15 +24,15 @@ exports.addTodo = async (req, res) => {
 
     const newTodo = new Todo({
       title: title.trim(),
-      owner:req.user && req.user._id,
-      userId: req.user._id,     // <--- associate todo with the logged-in user
+      owner: req.user && req.user._id,
+      userId: req.user._id,
       completed: false,
     });
 
     const savedTodo = await newTodo.save();
 
     logger.info("Added the todo to DB", savedTodo);
-    return res.status(201).json(savedTodo); // 201 Created
+    return res.status(201).json(savedTodo);
   } catch (error) {
     logger.error("Error while adding the todo", error);
     return res.status(500).json({ message: "Something went wrong creating the todo." });
@@ -86,3 +86,29 @@ exports.updateTodo = async (req,res) => {
     return res.status(500).json({message:"Something went wrong updating the todo"})
   }
 }
+
+// In your todoController.js
+
+// const Todo = require("../models/todomodel");
+// const logger = require("../utils/logger");
+
+exports.deleteAllTodos = async (req, res) => {
+  try {
+    const userId = req.user._id; // Get the user's ID from the auth middleware
+    logger.info(`Attempting to delete all todos for user: ${userId}`);
+
+    // Use deleteMany with a filter to only delete this user's todos
+    const result = await Todo.deleteMany({ userId: userId });
+
+    // The 'result' object contains information like `deletedCount`
+    logger.info(`Successfully deleted ${result.deletedCount} todos for user: ${userId}`);
+
+    // Respond with a success message
+    // 204 No Content is also a good option here
+    return res.status(200).json({ message: `Successfully deleted ${result.deletedCount} todos.` });
+
+  } catch (error) {
+    logger.error("Error while deleting all todos:", error);
+    return res.status(500).json({ message: "Something went wrong. Please try again later." });
+  }
+};

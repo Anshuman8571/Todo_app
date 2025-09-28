@@ -5,30 +5,20 @@ function AddTodo({ onAdd }) {
     const [loading, setLoading] = useState(false);
     
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!todo.trim()) return;
+    e.preventDefault();
+    if (!todo.trim()) return;
 
-        setLoading(true);
-        try {
-            // Create todo with proper timestamp that accounts for local timezone
-            const now = new Date();
-            const localDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds());
-            
-            const newTodo = {
-                title: todo.trim(),
-                completed: false,
-                createdAt: localDate.toISOString(),
-                timestamp: localDate.toISOString()
-            };
-            
-            await onAdd(newTodo);
-            setTodo("");
-        } catch (error) {
-            console.error("Error adding todo:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    setLoading(true);
+    try {
+        // Let the backend handle timestamp creation
+        await onAdd(todo.trim()); // Just pass the title string
+        setTodo("");
+    } catch (error) {
+        console.error("Error adding todo:", error);
+    } finally {
+        setLoading(false);
+    }
+};
     return (
         <form onSubmit={handleSubmit}>
             <input 

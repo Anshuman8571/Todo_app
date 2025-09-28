@@ -17,3 +17,7 @@ export const fetchTodos = () =>  API.get('/get-todos');
 export const createTodo = (data) => API.post('/add-todo',data);
 export const deleteTodo = (id) =>  API.delete(`/delete-todo/${id}`);
 export const updateTodo = (id) => API.put(`/update-todo/${id}`)
+export const deleteAllTodos = async () => {
+  const response = await API.delete('/todos');
+  return response.data;
+};
