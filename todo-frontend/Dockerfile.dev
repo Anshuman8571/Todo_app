@@ -1,0 +1,14 @@
+# todo-frontend/Dockerfile.dev
+FROM node:22-alpine
+
+WORKDIR /app
+
+# install deps (cache this layer when package.json unchanged)
+COPY package*.json ./
+RUN npm ci
+
+# copy nothing else — we'll mount source in compose
+EXPOSE 3000
+
+# Use the same start script you use locally (CRA: react-scripts start, Vite: vite)
+CMD ["npm", "start"]

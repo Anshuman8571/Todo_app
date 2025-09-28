@@ -1,7 +1,9 @@
 .App {
-  text-align: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--gray-50) 0%, var(--primary-50) 100%);
 }
 
+/* Remove default styles that are no longer needed */
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -14,7 +16,7 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: var(--gray-800);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -25,7 +27,7 @@
 }
 
 .App-link {
-  color: #61dafb;
+  color: var(--primary-400);
 }
 
 @keyframes App-logo-spin {

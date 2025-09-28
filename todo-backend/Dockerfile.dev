@@ -1,0 +1,13 @@
+FROM node:22-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
+# install nodemon globally or devDependency to enable live reload
+RUN npm install -g nodemon
+
+EXPOSE 3001
+
+CMD ["nodemon", "--legacy-watch", "start.js"]

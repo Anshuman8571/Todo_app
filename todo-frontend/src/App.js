@@ -1,17 +1,30 @@
-import logo from './logo.svg';
-import './styles.css';
-import AddTodo from "./components/AddTodo"
-import TodoList from "./components/TodoList";
+import { Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Login from './components/Login';
+import Register from './components/Register';
+import TodoList from './components/TodoList';
+import Dashboard from './components/Dashboard';
+
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './context/AuthContext';
 
 function App() {
   return (
-    <div className="App">
-      {/* <AddTodo>
-        
-      </AddTodo> */}
-      <TodoList></TodoList>
-        
-    </div>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/todos" element={
+            <ProtectedRoute>
+              <TodoList />
+              {/* <Dashboard /> */}
+            </ProtectedRoute>
+          } />
+          { <Route path="*" element={<Navigate to="/login" replace/>} /> }
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

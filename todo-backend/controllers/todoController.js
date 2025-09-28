@@ -1,47 +1,114 @@
-const Todo = require("../models/todomodel")
-const logger = require("../utils/logger")
+const Todo = require("../models/todomodel");
+const logger = require("../utils/logger");
 
+exports.getTodos = async (req, res) => {
+  logger.info("Fetching the todos from DB for user", req.user && req.user._id);
+  try {
+    const todos = await Todo.find({ userId: req.user._id }).sort({ createdAt: -1 });
+    logger.info("Fetched todos count:", todos.length);
+    return res.status(200).json(todos);
+  } catch (error) {
+    logger.error("Error while fetching the todos", error);
+    return res.status(500).json({ message: "Something went wrong. Please try later." });
+  }
+};
 
-exports.getTodos = async(req,res) =>{
-    console.log("Fetching the todos from DB")
-    try{
-        const todos = await Todo.find();
-        // console.log("Fetch all the todos",todos)
-        logger.info("Fetched all the todos",todos)
-        res.status(200).json(todos)
-    } catch(error) {
-        logger.error("Error while fetching the todos",error)
-        res.status(500).json({message:"somnething went wrong please try later"})
+exports.addTodo = async (req, res) => {
+  try {
+    const { title } = req.body;
+    if (!title || !title.trim()) {
+      return res.status(400).json({ message: "Title is required" });
     }
+
+    logger.info("Adding a new Todo for user", req.user && req.user._id, title);
+
+    const newTodo = new Todo({
+      title: title.trim(),
+      owner: req.user && req.user._id,
+      userId: req.user._id,
+      completed: false,
+    });
+
+    const savedTodo = await newTodo.save();
+
+    logger.info("Added the todo to DB", savedTodo);
+    return res.status(201).json(savedTodo);
+  } catch (error) {
+    logger.error("Error while adding the todo", error);
+    return res.status(500).json({ message: "Something went wrong creating the todo." });
+  }
+};
+
+exports.deleteTodo = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const todo = await Todo.findById(id);
+
+    if (!todo) {
+      logger.warn("Attempt to delete non-existent todo", id);
+      return res.status(404).json({ message: "Todo not found" });
+    }
+
+    // Ensure the requester owns the todo
+    if (!todo.userId || todo.userId.toString() !== req.user._id.toString()) {
+      logger.warn("Unauthorized delete attempt", { todoId: id, requester: req.user._id });
+      return res.status(403).json({ message: "Not allowed to delete this todo" });
+    }
+
+    await Todo.findByIdAndDelete(id);
+    logger.info("Todo deleted", id);
+    return res.status(204).send(); // 204 No Content (or 200 + message if you prefer)
+  } catch (error) {
+    logger.error("Error while deleting a todo", error);
+    return res.status(500).json({ message: "Something went wrong deleting the todo" });
+  }
+};
+
+exports.updateTodo = async (req,res) => {
+  try{
+    const {id} = req.params;
+    const todo = await Todo.findById(id);
+    if(!todo){
+      return res.status(404).json({message:"Todo not found"})
+    }
+    if(!todo.userId || todo.userId.toString() !== req.user._id.toString()){
+      logger.warn("Unauthorised update attempt",{todoId:id,requester:req.user._id});
+      return res.status(404).json({message:"Todo not found"});
+    }
+    todo.completed = !todo.completed;
+    const updatedTodo = await todo.save();
+    
+    logger.info("Todon Updated",updatedTodo);
+    return res.status(200).json(updatedTodo); 
+    
+  } catch(error){
+    logger.error("Error while updating a todo",error);
+    return res.status(500).json({message:"Something went wrong updating the todo"})
+  }
 }
 
-exports.addTodo = async (req,res) => { 
-    try {
-        const title = req.body.title;
-        logger.info("Adding a new Todo",title)
-        const newTodo = new Todo({
-            title: title
-        })
+// In your todoController.js
 
-        logger.info("Adding the todo to DB",newTodo)
-        const savedTodo = await newTodo.save()
-        logger.info("Added the todo to DB",savedTodo)
-        
-        return res.status(200).json(savedTodo)
-    } catch (error) {
-        logger.error("Error while Adding the todos",error)
-        res.status(500).json({message:"Something went wrong in addTodo,please try later"})
-    }
-}
+// const Todo = require("../models/todomodel");
+// const logger = require("../utils/logger");
 
-exports.deleteTodo = async (req,res) =>{
-    try{
-        const id  = req.params.id;
-        const deleted = await Todo.findByIdAndDelete(id)
-        if(!deleted) return console.log("Eror 404: Not Found",req.body)
-        return res.status(200).json({message:"Todo deleted successfully"})
-    } catch(error){
-        logger.error("Error while deleting a todo",error)
-        res.status(500).json({message:"Something went wrong with deleting todo"})
-    }
-}
+exports.deleteAllTodos = async (req, res) => {
+  try {
+    const userId = req.user._id; // Get the user's ID from the auth middleware
+    logger.info(`Attempting to delete all todos for user: ${userId}`);
+
+    // Use deleteMany with a filter to only delete this user's todos
+    const result = await Todo.deleteMany({ userId: userId });
+
+    // The 'result' object contains information like `deletedCount`
+    logger.info(`Successfully deleted ${result.deletedCount} todos for user: ${userId}`);
+
+    // Respond with a success message
+    // 204 No Content is also a good option here
+    return res.status(200).json({ message: `Successfully deleted ${result.deletedCount} todos.` });
+
+  } catch (error) {
+    logger.error("Error while deleting all todos:", error);
+    return res.status(500).json({ message: "Something went wrong. Please try again later." });
+  }
+};
